@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<!-- Add icon library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+<body>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+    
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script url="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src = "https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src = "https://code.highcharts.com/highcharts.js"></script> 
+<script src="https://code.highcharts.com/modules/exporting.js"> </script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<!-- Gauge -->
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/highcharts-more.js"></script>
+<script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
+<!-- Scatter Plot -->
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<p> Rate Data Analysis</p>
+<a href="/npsscale">NPS Scale</a>
+<a href="/">Rank Analysis</a>
+<form id='form'>
+    <div>
+        <select multiple id="topic">
+            {% for i in columns %}
+                <option  value={{ i }}>{{ i }}</option>
+             {% endfor %}
+        </select> 
+    </div>
+    <div>
+        <select id="nps">
+            <option value="npsplot">NPS</option>
+            <option value="ratemean">Combined Mean</option>
+        </select>
+    </div>
+        <button type="submit" id='subVal'>Plot</button>
+</form>
+
+<!-- Trigger/Open The Modal -->
+<button id="myBtn" class="btn" style="display: none; float: right;"><i class="fa fa-question-circle "></i>NPS</button>
+
+<!-- The Modal -->
+<div id="myModal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Net Promoter Score</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" style="height: 70vh; overflow: scroll">
+                <img src='static/images/npsdefinition.jpg' style="width: 100%">
+                <img src='static/images/whatisnps.jpg' style="width: 100%">    
+                <img src='static/images/nps.png' width='100%'>
+                <img src='static/images/npstatings.jpg' width='100%'>          
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div>
+    <ul id='links' class="nav nav-tabs" style="display: none" ></ul>
+    <div id='divs' class="tab-content" style="display: none"></div>
+</div>
+
+<div id='divsmean'style="display: none"></div>
+
+<script>
+
+var form=$('#form');
+var option=$('select#topic');
+var option1=$('select#nps');
+
+
+form.submit(function(ev){
+    ev.preventDefault();
+    selectVal=option.val();
+    selectVal1=option1.val();
+    // alert(selectVal);
+    ajazzz(selectVal,selectVal1);
+});
+
+function ajazzz(topic,nps){
+    data={'topic':topic,'nps':nps}
+    $.ajax({ 
+        url:'/tab',
+        type:'POST',
+        data:JSON.stringify(data),
+        contentType:'application/json',
+        async: true,
+        cache: false,
+        success: function (data) {
+            key=Object.keys(data)[0];
+            if (key=='resultnps'){
+                document.getElementById("links").style.display = '';
+                document.getElementById("divs").style.display = '';
+                document.getElementById("myBtn").style.display='';
+                document.getElementById("divsmean").style.display = 'none';
+                npsplot(data);
+            }
+            else{
+                document.getElementById("links").style.display = 'none';
+                document.getElementById("divs").style.display = 'none';
+                document.getElementById("myBtn").style.display='none';
+                document.getElementById("divsmean").style.display = '';
+                meanplot(data);
+            }
+            
+                
+        }
+    });
+}
+
+function npsplot(data){
+    var npsdata=data.resultnps;
+    var series1=npsdata.series;
+    var title1=npsdata.title;
+    var xAxis1=npsdata.xAxis;
+    var yAxis1=npsdata.yAxis;
+    var subtitle1=npsdata.subtitle;
+    var maxrate1=npsdata.maxrate;
+    var paint1=npsdata.colors;
+    var links='';
+    var divs='';
+
+    for (var i=0; i<series1.length;i++ ){
+        links+='<li><a data-toggle="tab" href="#'+(series1[i])[0]['name']+'">'+(series1[i])[0]['name']+'</a></li>'
+        divs+='<div id="'+(series1[i])[0]['name']+'" class="tab-pane fade in"></div>'
+    }
+    
+    document.getElementById('links').innerHTML=links;
+    document.getElementById('divs').innerHTML=divs;
+    document.getElementById('links').firstElementChild.classList.add('active');
+    document.getElementById('divs').firstElementChild.classList.add('active');
+
+    
+    for (var i=0; i<series1.length;i++ ){
+        chartdesigner((series1[i])[0]['name'],title1[i],subtitle1[i],xAxis1[i],yAxis1[i],series1[i],paint1);
+    }
+
+    // Get the modal
+    var modal = document.getElementById("myModal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("myBtn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks the button, open the modal 
+    btn.onclick = function() {
+    modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+    modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+    }
+
+}
+
+function meanplot(data){
+    var meandata=data.resultmean;
+    var mainseries=meandata.mainseries;
+    var target=meandata.target;
+    var min=meandata.min;
+    var max=meandata.max;
+    var divsmean='';
+    
+    divsmean='<div id="'+((mainseries[0])[1])['name']+'"></div>'  
+    document.getElementById('divsmean').innerHTML=divsmean;
+    gauge(((mainseries[0])[1])['name'],mainseries[0],target[0],min[0],max[0],((mainseries[0])[1])['name']);
+}
+
+    
+function chartdesigner(chartid,title,subtitle,xaxis,yaxis,series,paint) {
+   
+    
+    Highcharts.chart(chartid, {
+    
+      chart:{
+        type:'bar',
+        height:500
+      },
+      title:title,
+      subtitle: subtitle,
+      legend: {
+          reversed: false,
+          align: 'center',
+            verticalAlign: 'top'
+      },
+      tooltip: {
+             formatter: function() {
+                   return '<b>'+ Highcharts.numberFormat(this.y, 0) +'</b><br/>';
+                    
+              },
+              shared:true
+          },
+      plotOptions: {
+          series: {
+              dataLabels: {
+              enabled:true
+            }
+        },
+          bar:{
+              colors: paint,
+              colorByPoint: true
+        },
+
+        pie:{
+            colors: ["red","yellow","green"],
+            showInLegend: true,
+             dataLabels: {
+                format: '</b>{point.y}',
+                color: 'black'
+            }
+      }
+      },
+      xAxis:xaxis,
+      yAxis: yaxis,
+      series: series
+  });
+
+}
+
+function gauge(id,series,target,min,max,name){
+
+
+var gaugeOptions = {
+
+    chart: {
+        type: 'solidgauge',
+         height:400
+    },
+
+    title: null,
+
+    pane: {
+        center: ['50%', '58%'],
+        size: '60%',
+        startAngle: -90,
+        endAngle: 90,
+        background: {
+            innerRadius: '60%',
+            outerRadius: '100%',
+            shape: 'arc'
+        }
+    },
+    // the value axis
+    yAxis: {
+        stops: [
+            [(target/max)-0.01, 'red'],
+            [target/max, 'yellow'],
+            [(target/max)+0.01, 'green'],
+        ],
+        lineWidth: 0,
+        minorTickInterval: null,
+        tickAmount: 1,
+        title: {
+            enabled:false
+        },
+        labels: {
+            y: 24
+        }
+    },
+
+    plotOptions: {
+        solidgauge: {
+            dataLabels: {
+               enabled:true
+            }
+        },
+        series: {
+               dataLabels: {
+                enabled:true
+              }
+          },
+        pie:{
+        showInLegend: true,
+        dataLabels: {
+                distance: -15,
+                format: '</b>{point.y}',
+                color: 'white'
+            }
+      }
+    }
+};
+
+
+
+// The speed gauge
+var chartSpeed = Highcharts.chart(id, Highcharts.merge(gaugeOptions, {
+
+    title:{
+      text:name
+    },
+
+    yAxis: {
+        min: min,
+        max: max
+    },
+
+    credits: {
+        enabled: false
+    },
+
+    series:series
+
+}));
+
+
+
+}
+
+
+
+</script>
+
+</body>
+</html> 
