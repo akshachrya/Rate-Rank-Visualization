@@ -28,9 +28,7 @@
 <script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
 <!-- Scatter Plot -->
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-<p> Rate Data Analysis</p>
-<a href="/npsscale">NPS Scale</a>
-<a href="/">Rank Analysis</a>
+
 <form id='form'>
     <div>
         <select multiple id="topic">
@@ -96,7 +94,7 @@ form.submit(function(ev){
 function ajazzz(topic,nps){
     data={'topic':topic,'nps':nps}
     $.ajax({ 
-        url:'/tab',
+        url:'/rateanalysis',
         type:'POST',
         data:JSON.stringify(data),
         contentType:'application/json',
@@ -232,7 +230,12 @@ function chartdesigner(chartid,title,subtitle,xaxis,yaxis,series,paint) {
             showInLegend: true,
              dataLabels: {
                 format: '</b>{point.y}',
-                color: 'black'
+                color: 'white',
+                enabled:true,
+                distance: -13,
+                style: {
+                    fontSize: 10  
+                }
             }
       }
       },
@@ -244,7 +247,6 @@ function chartdesigner(chartid,title,subtitle,xaxis,yaxis,series,paint) {
 }
 
 function gauge(id,series,target,min,max,name){
-
 
 var gaugeOptions = {
 

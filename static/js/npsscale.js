@@ -7,7 +7,6 @@ function divnpsscale(series){
   newElement2.className="row";
   newElement2.id="row";
   document.body.appendChild(newElement2);
-
   for(var i=0;i<series.length;i++){
     newElement1[i]=document.createElement('div');
     newElement1[i].className="col-lg-4";
@@ -37,7 +36,6 @@ function npsscale(id,name,series){
         drawPoints: function () {
             // Draw the Column like always
             H.seriesTypes.column.prototype.drawPoints.apply(this, arguments);
-
             // Add a Marker
             var series = this,
                 chart = this.chart,

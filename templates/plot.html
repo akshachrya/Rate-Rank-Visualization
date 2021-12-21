@@ -12,9 +12,7 @@
 <script src = "https://code.highcharts.com/highcharts.js"></script> 
 <script src="https://code.highcharts.com/modules/exporting.js"> </script>
 <script src="https://code.highcharts.com/modules/export-data.js"></script>
-<p> Rank Data Analysis</p>
-<a href="/mean">Mean</a>
-<a href="/tab">Rate Analysis</a>
+
 <form id='form'>
     <div>
         <select multiple id="topic">
@@ -52,7 +50,7 @@ form.submit(function(ev){
 function ajazzz(topic,rankplot){
     data={'topic':topic,'rankplot':rankplot}
     $.ajax({ 
-        url:'/',
+        url:'/rankanalysis',
         type:'POST',
         data:JSON.stringify(data),
         contentType:'application/json',

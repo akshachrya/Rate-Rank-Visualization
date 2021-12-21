@@ -5,6 +5,10 @@ import numpy as np
 import random
 import string
 
+ratedata="rate_Data.csv"
+rankdata= "rank_Data.csv"
+
+
 def categoriesmaker(maxrate,types):
 	if types=='rate':
 		if maxrate==11:
@@ -145,15 +149,16 @@ def seriesmaker(data,elements):
 	return series
 
 def rankseriesmaker(data,elements,maxrate):
+	print(data)
 	series,weight,mulweight,slicer,sums,a=[],[],[],[],[],[]
 	for i in range(maxrate):
 		weight.append((i+1)*5)
 	weight.sort(reverse = True)
-	
+	print("weight",weight)
 	for i in range(len(elements)):
 		for j in range(maxrate):
 			mulweight.append(data[i][j][1]*weight[j])
-
+	print("mulweight",mulweight)
 	for i in range(len(elements)):
 		slicer.append(mulweight[i*maxrate:(i+1)*maxrate])
 		sums.append(sum(slicer[i]))
@@ -166,6 +171,7 @@ def rankseriesmaker(data,elements,maxrate):
 		maxo=maxo-1
 		
 	plotData={}
+	print(a)
 	plotData['name']='rank'
 	plotData['data']=a
 	series.append(plotData)
@@ -276,16 +282,16 @@ def nps_score(score):
 
 app = Flask(__name__)
 
-@app.route("/",methods=['GET','POST'])
+@app.route("/rankanalysis",methods=['GET','POST'])
 def plot():
 	if request.method=='POST':
-		df =pd.read_csv("rank_Data.csv")
+		df =pd.read_csv(rankdata)
 		rateFactors = df
 		
 		reqdata=request.data
 		reqdata=json.loads(reqdata)
 		rateFactors=rateFactors[reqdata['topic']]
-		maxrate=10
+		maxrate=10 
 		types='rank'
 
 		columns=rateFactors.columns.str.replace('\d+', '')
@@ -316,17 +322,17 @@ def plot():
 		return jsonify(result)
 
 	else:
-		df =pd.read_csv("rank_Data.csv")
+		df =pd.read_csv(rankdata)
 		rateFactors = df
 		rateFactors.columns=rateFactors.columns.str.replace('\d+', '')
 		# Since id in js doesnt take number format so renaming it so removing digit from column names
 		columns=list(rateFactors.columns)
 		return render_template('plot.html',columns=columns)
 
-@app.route("/tab",methods=['GET','POST'])
+@app.route("/rateanalysis",methods=['GET','POST'])
 def tab():
 	if request.method=='POST':
-		df =pd.read_csv("rate_Data.csv")
+		df =pd.read_csv(ratedata)
 		rateFactors = df
 		rateFactors.columns=rateFactors.columns.str.replace('\d+', '')
 		# Since id in js doesnt take number format so renaming it so removing digit from column names
@@ -381,7 +387,7 @@ def tab():
 		
 		return jsonify(result)
 	else:
-		df =pd.read_csv("rate_Data.csv")
+		df =pd.read_csv(ratedata)
 		rateFactors = df
 		rateFactors.columns=rateFactors.columns.str.replace('\d+', '')
 		# Since id in js doesnt take number format so renaming it so removing digit from column names
@@ -390,7 +396,7 @@ def tab():
 
 @app.route("/mean")
 def meanplot():
-	df =pd.read_csv("rate_Data.csv")
+	df =pd.read_csv(ratedata)
 	rateFactors = df
 	rateFactors.columns=rateFactors.columns.str.replace('\d+', '')
 	# Since id in js doesnt take number format so renaming it so removing digit from column names
@@ -412,7 +418,7 @@ def meanplot():
 
 @app.route("/npsscale")
 def npsscale():
-	df =pd.read_csv("rate_Data.csv")
+	df =pd.read_csv(ratedata)
 	rateFactors = df
 	rateFactors.columns=rateFactors.columns.str.replace('\d+', '')
 	# Since id in js doesnt take number format so renaming it so removing digit from column names
@@ -432,7 +438,7 @@ def npsscale():
 
 @app.route("/meanscale")
 def meanscale():
-	df =pd.read_csv("rate_Data.csv")
+	df =pd.read_csv(ratedata)
 	rateFactors = df
 	rateFactors.columns=rateFactors.columns.str.replace('\d+', '')
 	# Since id in js doesnt take number format so renaming it so removing digit from column names

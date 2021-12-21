@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Astral Sun</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+
+
+  <style type="text/css">
+
+  </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">Astral Sun Application</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="{%block home%}{%endblock%}"><a href="/home">Home</a></li>
+      <li class="{%block about%}{%endblock%}"><a href="/about">About Us</a></li>
+    </ul>
+  </div>
+</nav>
+  
+
+  
+<div class="container">
+{% block content %}{% endblock %} 
+</div>
+
+
+</div>
+
+<footer id="footer">
+  <div id="footer-content">&copy; Copyright 2020 by <a href="www.akshwrld.blogspot.com">Akash Acharya</a></div>
+</footer>
+</body>
+</html>
+
